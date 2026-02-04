@@ -1,2 +1,1 @@
-// Button components will be exported here
-export {};
+export { BottomButton } from './BottomButton';

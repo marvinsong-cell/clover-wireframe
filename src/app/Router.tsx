@@ -1,16 +1,23 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { OnboardingPage } from '@/pages/auth/OnboardingPage';
+import { SignupPage } from '@/pages/auth/SignupPage';
 
 // Placeholder components - will be implemented later
-const LoadingScreen = () => <div>Loading...</div>;
-const LoginPage = () => <div>Login Page</div>;
-const SignupPage = () => <div>Signup Page</div>;
-const OnboardingPage = () => <div>Onboarding Page</div>;
-const FeedPage = () => <div>Feed Page</div>;
-const ChatPage = () => <div>Chat Page</div>;
-const ChatRoomPage = () => <div>Chat Room Page</div>;
-const MatchesPage = () => <div>Matches Page</div>;
-const ProfilePage = () => <div>Profile Page</div>;
+const LoadingScreen = () => (
+  <div className="screen">
+    <div className="screen-content center">
+      <div className="animate-pulse">🍀</div>
+      <p className="text-secondary">로딩 중...</p>
+    </div>
+  </div>
+);
+
+const FeedPage = () => <div className="screen"><div className="screen-content center"><p>Feed Page (준비 중)</p></div></div>;
+const ChatPage = () => <div className="screen"><div className="screen-content center"><p>Chat Page (준비 중)</p></div></div>;
+const ChatRoomPage = () => <div className="screen"><div className="screen-content center"><p>Chat Room (준비 중)</p></div></div>;
+const MatchesPage = () => <div className="screen"><div className="screen-content center"><p>Matches Page (준비 중)</p></div></div>;
+const ProfilePage = () => <div className="screen"><div className="screen-content center"><p>Profile Page (준비 중)</p></div></div>;
 
 const ProtectedRoute = () => {
   const { session, isLoading } = useAuthStore();
@@ -20,7 +27,7 @@ const ProtectedRoute = () => {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <Outlet />;
@@ -37,6 +44,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <MainLayout />,
     children: [
+      // 인증이 필요한 라우트
       {
         element: <ProtectedRoute />,
         children: [
@@ -48,9 +56,9 @@ export const router = createBrowserRouter([
           { path: 'profile', element: <ProfilePage /> },
         ],
       },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'signup/*', element: <SignupPage /> },
-      { path: 'onboarding/*', element: <OnboardingPage /> },
+      // 인증이 필요 없는 라우트
+      { path: 'onboarding', element: <OnboardingPage /> },
+      { path: 'signup', element: <SignupPage /> },
     ],
   },
 ]);
