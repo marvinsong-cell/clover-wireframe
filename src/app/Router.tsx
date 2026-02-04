@@ -1,7 +1,11 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { OnboardingPage } from '@/pages/auth/OnboardingPage';
-import { SignupPage } from '@/pages/auth/SignupPage';
+import { PhoneAuthPage } from '@/pages/auth/PhoneAuthPage';
+import { BasicInfoPage } from '@/pages/auth/BasicInfoPage';
+import { CloverInfoPage } from '@/pages/auth/CloverInfoPage';
+import { AgreementPage } from '@/pages/auth/AgreementPage';
+import { CompletePage } from '@/pages/auth/CompletePage';
 
 // Placeholder components - will be implemented later
 const LoadingScreen = () => (
@@ -56,9 +60,13 @@ export const router = createBrowserRouter([
           { path: 'profile', element: <ProfilePage /> },
         ],
       },
-      // 인증이 필요 없는 라우트
+      // 인증이 필요 없는 라우트 (회원가입 플로우)
       { path: 'onboarding', element: <OnboardingPage /> },
-      { path: 'signup', element: <SignupPage /> },
+      { path: 'signup/phone-auth', element: <PhoneAuthPage /> },
+      { path: 'signup/basic-info', element: <BasicInfoPage /> },
+      { path: 'signup/clover-info', element: <CloverInfoPage /> },
+      { path: 'signup/agreement', element: <AgreementPage /> },
+      { path: 'signup/complete', element: <CompletePage /> },
     ],
   },
 ]);
