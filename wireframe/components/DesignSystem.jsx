@@ -31,7 +31,7 @@ const Header = ({ title, onBack, showBack = true }) => (
   <header className="header">
     {showBack ? (
       <button className="header-back" onClick={onBack}><Icons.Back /></button>
-    ) : <div style={{ width: 40 }} />}
+    ) : <div className="header-spacer" />}
     {title && <h1 className="header-title">{title}</h1>}
   </header>
 );
@@ -165,7 +165,7 @@ const PhotoUploadGrid = ({ photos = [], onChange, maxPhotos = 6 }) => {
     <div className="photo-grid">
       {Array(maxPhotos).fill(null).map((_, index) => (
         <div key={index} className={`photo-item ${photos[index] ? 'filled' : ''}`} onClick={() => handleClick(index)}>
-          {photos[index] ? <span style={{ fontSize: '32px' }}>📷</span> : <><Icons.Plus /><span>{index === 0 ? '대표' : '추가'}</span></>}
+          {photos[index] ? <span className="photo-emoji">📷</span> : <><Icons.Plus /><span>{index === 0 ? '대표' : '추가'}</span></>}
         </div>
       ))}
     </div>
@@ -204,8 +204,22 @@ const AgreementList = ({ agreements, checkedIds, onChange }) => {
 const NoticeBox = ({ children }) => <div className="notice-box"><p>{children}</p></div>;
 const HelperText = ({ children }) => <p className="helper-text">{children}</p>;
 
+const CloverCompleteModal = ({ cloverCount, onClose }) => (
+  <div className="modal-overlay">
+    <div className="modal-content slide-up">
+      <div className="modal-icon">🍀</div>
+      <h2 className="modal-title">클로버가 완성되었어요!</h2>
+      <p className="modal-description">{cloverCount}잎 클로버로<br/>진지한 만남을 시작해보세요.</p>
+      <button className="modal-button" onClick={onClose}>
+        내 프로필 보기
+      </button>
+    </div>
+  </div>
+);
+
 window.CloverUI = {
   Icons, Header, ProgressBar, BottomButton, BorderInput, BoxInput, BorderTextarea,
   SelectionList, ChipGroup, SearchInput, SearchResultItem, InterestChip,
-  CardOptionGrid, SelectDropdown, PhotoUploadGrid, AgreementList, NoticeBox, HelperText
+  CardOptionGrid, SelectDropdown, PhotoUploadGrid, AgreementList, NoticeBox, HelperText,
+  CloverCompleteModal
 };

@@ -61,8 +61,8 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
           <div className="slide-up">
             <h2 className="question-title">어떤 일을<br/>하시나요?</h2>
             <CloverUI.NoticeBox>입력하신 정보는 운영팀 검수 후 프로필에 노출됩니다.</CloverUI.NoticeBox>
-            <div style={{ marginTop: '24px', marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>직업 유형</p>
+            <div className="mt-24 mb-24">
+              <p className="section-label-bold">직업 유형</p>
               <CloverUI.CardOptionGrid
                 options={jobTypeOptions}
                 value={formData.jobType}
@@ -71,7 +71,7 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
             </div>
             {formData.jobType && (
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>세부 직업</p>
+                <p className="section-label-bold">세부 직업</p>
                 <CloverUI.SelectDropdown
                   placeholder="세부 직업 선택"
                   options={jobDetailOptions[formData.jobType] || []}
@@ -86,24 +86,20 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
         return (
           <div className="slide-up">
             <h2 className="question-title">학력 정보를<br/>입력해주세요.</h2>
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>최종 학위</p>
-              <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="mb-24">
+              <p className="section-label-bold">최종 학위</p>
+              <div className="degree-button-group">
                 {['학사', '석사', '박사'].map(d => (
                   <button
                     key={d}
                     onClick={() => updateForm('degree', d)}
-                    style={{
-                      flex: 1, padding: '16px', border: formData.degree === d ? '2px solid #000' : '2px solid #d8d7d7',
-                      borderRadius: '8px', background: formData.degree === d ? 'rgba(206,241,123,0.1)' : '#fff',
-                      fontSize: '15px', fontWeight: 600, cursor: 'pointer'
-                    }}
+                    className={`degree-button ${formData.degree === d ? 'selected' : ''}`}
                   >{d}</button>
                 ))}
               </div>
             </div>
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>학교 그룹</p>
+            <div className="mb-24">
+              <p className="section-label-bold">학교 그룹</p>
               <CloverUI.SelectionList
                 options={educationGroupOptions}
                 value={formData.educationGroup}
@@ -112,7 +108,7 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
             </div>
             {formData.educationGroup && (
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>학교명</p>
+                <p className="section-label-bold">학교명</p>
                 <CloverUI.BorderInput
                   placeholder="학교명 입력"
                   value={formData.schoolName}
@@ -127,8 +123,8 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
           <div className="slide-up">
             <h2 className="question-title">자산 정보를<br/>입력해주세요.</h2>
             <CloverUI.NoticeBox>자산 정보는 매칭 품질 향상에만 사용되며, 구체적인 금액은 공개되지 않습니다.</CloverUI.NoticeBox>
-            <div style={{ marginTop: '24px', marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>자산 기반</p>
+            <div className="mt-24 mb-24">
+              <p className="section-label-bold">자산 기반</p>
               <CloverUI.SelectionList
                 options={[{ value: 'self', label: '본인' }, { value: 'family', label: '가족' }, { value: 'mixed', label: '혼합' }]}
                 value={formData.assetBase}
@@ -136,7 +132,7 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
               />
             </div>
             <div>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>자산 수준</p>
+              <p className="section-label-bold">자산 수준</p>
               <CloverUI.SelectionList
                 options={[{ value: 'high', label: '상위' }, { value: 'middle', label: '중간' }, { value: 'initial', label: '초기' }]}
                 value={formData.assetLevel}
@@ -149,8 +145,8 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
         return (
           <div className="slide-up">
             <h2 className="question-title">외모 정보를<br/>입력해주세요.</h2>
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>키</p>
+            <div className="mb-24">
+              <p className="section-label-bold">키</p>
               <CloverUI.SelectDropdown
                 placeholder="키 선택"
                 options={heightOptions}
@@ -159,9 +155,9 @@ const CloverInfoScreen = ({ onComplete, onBack }) => {
               />
             </div>
             <div>
-              <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>프로필 사진</p>
+              <p className="section-label-bold">프로필 사진</p>
               <CloverUI.HelperText>최소 2장, 최대 6장 등록 가능</CloverUI.HelperText>
-              <div style={{ marginTop: '12px' }}>
+              <div className="mt-12">
                 <CloverUI.PhotoUploadGrid
                   photos={formData.photos}
                   onChange={(p) => updateForm('photos', p)}

@@ -78,8 +78,8 @@ const BasicInfoScreen = ({ onComplete, onBack }) => {
         return (
           <div className="slide-up">
             <h2 className="question-title">어디에<br/>거주하시나요?</h2>
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 500, color: '#1a1a1a', marginBottom: '12px' }}>자주 찾는 지역</p>
+            <div className="mb-24">
+              <p className="section-label">자주 찾는 지역</p>
               <CloverUI.ChipGroup
                 options={frequentLocations.map(l => ({ value: l, label: l }))}
                 values={formData.region ? [formData.region] : []}

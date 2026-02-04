@@ -61,7 +61,7 @@ const PhoneAuthScreen = ({ onComplete, onBack }) => {
       <div className="screen-content">
         <div className="slide-up">
           <h2 className="question-title">인증번호를<br/>입력해주세요.</h2>
-          <div style={{ marginBottom: '16px' }}>
+          <div className="mb-16">
             <CloverUI.BorderInput
               placeholder="000000"
               value={verifyCode}
@@ -69,7 +69,7 @@ const PhoneAuthScreen = ({ onComplete, onBack }) => {
               type="tel"
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="flex-between">
             <CloverUI.HelperText>{timer > 0 ? `${formatTime(timer)} 안에 입력해주세요` : '인증시간 만료'}</CloverUI.HelperText>
             <button className="btn-secondary" onClick={() => { setTimer(180); setIsTimerActive(true); setVerifyCode(''); }}>재발송</button>
           </div>

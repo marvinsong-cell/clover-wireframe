@@ -1,0 +1,152 @@
+/* =============================================
+   클로버 디자인 시스템 - Design Tokens
+   ============================================= */
+
+:root {
+  /* Primary Colors */
+  --primary-1: #cef17b;
+  --primary-1-light: rgba(206, 241, 123, 0.1);
+
+  /* Neutral Colors */
+  --black: #000000;
+  --white: #ffffff;
+  --gray-1: #1a1a1a;
+  --gray-2: #a09f9f;
+  --gray-3: #d8d7d7;
+  --gray-4: #f2f2f2;
+  --gray-5: #f9f9f9;
+  --gray-6: #949494;
+
+  /* Semantic Colors */
+  --placeholder: #cccccc;
+  --helper: #999999;
+  --error: #ff4d4d;
+  --success: #4caf50;
+
+  /* Border Colors */
+  --border-default: #e0e0e0;
+  --border-light: #f5efea;
+  --border-divider: #f5f5f5;
+
+  /* Background */
+  --selected-bg: #e5dcd2;
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --bg-gradient: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+
+  /* Typography */
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Safe Area */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
+}
+
+/* =============================================
+   Global Styles
+   ============================================= */
+
+html, body {
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--black);
+  background-color: #e5e5e5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+#root {
+  width: 100%;
+  max-width: 390px;
+}
+
+/* =============================================
+   Mobile Frame Container
+   ============================================= */
+
+.mobile-frame {
+  width: 390px;
+  min-height: 844px;
+  background: var(--bg-gradient);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+/* =============================================
+   Screen Layout
+   ============================================= */
+
+.screen {
+  width: 100%;
+  min-height: 844px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-gradient);
+  position: relative;
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.screen-content {
+  flex: 1;
+  padding: 0 20px;
+  padding-bottom: 100px;
+  overflow-y: auto;
+}
+
+.screen-content.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+/* =============================================
+   Utility Classes
+   ============================================= */
+
+.header-spacer { width: 40px; }
+.pre-line { white-space: pre-line; }
+
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-12 { margin-top: 12px; }
+.mt-24 { margin-top: 24px; }
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-1);
+  margin-bottom: 12px;
+}
+
+.section-label-bold {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}

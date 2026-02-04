@@ -56,19 +56,5 @@ const CompleteScreen = ({ onConfirm }) => (
   </div>
 );
 
-const CloverCompleteModal = ({ cloverCount, onClose }) => (
-  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-    <div style={{ width: '320px', background: 'white', borderRadius: '20px', padding: '32px 24px', textAlign: 'center' }} className="slide-up">
-      <div style={{ fontSize: '80px', marginBottom: '16px' }}>🍀</div>
-      <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '8px' }}>클로버가 완성되었어요!</h2>
-      <p style={{ fontSize: '15px', color: '#a09f9f', marginBottom: '24px' }}>{cloverCount}잎 클로버로<br/>진지한 만남을 시작해보세요.</p>
-      <button className="btn-primary active" style={{ width: '100%', height: '56px', borderRadius: '4px', border: 'none', background: '#000', color: '#fff', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }} onClick={onClose}>
-        내 프로필 보기
-      </button>
-    </div>
-  </div>
-);
-
 window.AgreementScreen = AgreementScreen;
 window.CompleteScreen = CompleteScreen;
-window.CloverCompleteModal = CloverCompleteModal;

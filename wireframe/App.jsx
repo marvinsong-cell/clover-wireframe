@@ -75,7 +75,7 @@ const App = () => {
     <div className="mobile-frame">
       {renderScreen()}
       {showCloverModal && (
-        <CloverCompleteModal
+        <CloverUI.CloverCompleteModal
           cloverCount={4}
           onClose={() => {
             setShowCloverModal(false);

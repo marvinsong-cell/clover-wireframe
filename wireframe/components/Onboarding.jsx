@@ -20,8 +20,8 @@ const OnboardingScreen = ({ onComplete }) => {
       <div className="screen-content center">
         <div className="onboarding-slide fade-in" key={currentSlide}>
           <div className="onboarding-image">{slides[currentSlide].icon}</div>
-          <h1 className="page-title" style={{ whiteSpace: 'pre-line', marginBottom: '12px' }}>{slides[currentSlide].title}</h1>
-          <p className="text-secondary" style={{ whiteSpace: 'pre-line' }}>{slides[currentSlide].description}</p>
+          <h1 className="page-title pre-line mb-12">{slides[currentSlide].title}</h1>
+          <p className="text-secondary pre-line">{slides[currentSlide].description}</p>
           <div className="onboarding-dots">
             {slides.map((_, i) => <span key={i} className={`onboarding-dot ${i === currentSlide ? 'active' : ''}`} />)}
           </div>

@@ -5,6 +5,7 @@
 
 :root {
   --primary-1: #cef17b;
+  --primary-1-light: rgba(206, 241, 123, 0.1);
   --black: #000000;
   --white: #ffffff;
   --gray-1: #1a1a1a;
@@ -12,12 +13,16 @@
   --gray-3: #d8d7d7;
   --gray-4: #f2f2f2;
   --gray-5: #f9f9f9;
+  --gray-6: #949494;
   --placeholder: #cccccc;
   --helper: #999999;
   --border-default: #e0e0e0;
   --border-light: #f5efea;
+  --border-divider: #f5f5f5;
   --selected-bg: #e5dcd2;
   --error: #ff4d4d;
+  --success: #4caf50;
+  --overlay-bg: rgba(0, 0, 0, 0.5);
   --bg-gradient: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
   --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --transition-fast: 150ms ease;
@@ -401,7 +406,7 @@ body {
   height: 67px;
   cursor: pointer;
   transition: background var(--transition-fast);
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--border-divider);
 }
 
 .search-result-item:hover {
@@ -421,7 +426,7 @@ body {
 .search-result-item .sub-text {
   font-size: 14px;
   font-weight: 400;
-  color: #949494;
+  color: var(--gray-6);
 }
 
 /* =============================================
@@ -469,7 +474,7 @@ body {
 
 .interest-chip.selected {
   border-color: var(--black);
-  background: rgba(206, 241, 123, 0.1);
+  background: var(--primary-1-light);
 }
 
 /* =============================================
@@ -555,7 +560,7 @@ body {
 }
 
 .char-counter.valid {
-  color: #4caf50;
+  color: var(--success);
 }
 
 /* =============================================
@@ -725,7 +730,7 @@ body {
 
 .card-option.selected {
   border-color: var(--black);
-  background: rgba(206, 241, 123, 0.1);
+  background: var(--primary-1-light);
 }
 
 .card-option-icon {
@@ -875,3 +880,118 @@ body {
 
 .fade-in { animation: fadeIn 0.3s ease forwards; }
 .slide-up { animation: slideUp 0.4s ease forwards; }
+
+/* =============================================
+   Utility Classes
+   ============================================= */
+
+.header-spacer { width: 40px; }
+.pre-line { white-space: pre-line; }
+
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-12 { margin-top: 12px; }
+.mt-24 { margin-top: 24px; }
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-1);
+  margin-bottom: 12px;
+}
+
+.section-label-bold {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.photo-emoji { font-size: 32px; }
+
+/* =============================================
+   Degree Button Group
+   ============================================= */
+
+.degree-button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.degree-button {
+  flex: 1;
+  padding: 16px;
+  border: 2px solid var(--gray-3);
+  border-radius: 8px;
+  background: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.degree-button.selected {
+  border-color: var(--black);
+  background: var(--primary-1-light);
+}
+
+/* =============================================
+   Modal - CloverCompleteModal
+   ============================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 320px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 80px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.modal-description {
+  font-size: 15px;
+  color: var(--gray-2);
+  margin-bottom: 24px;
+}
+
+.modal-button {
+  width: 100%;
+  height: 56px;
+  border-radius: 4px;
+  border: none;
+  background: var(--black);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
