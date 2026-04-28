@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>월간책방 — 서평이 만드는 독서 온도</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Reveals */
+    .rv    { opacity:0; transform:translateY(24px);  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .rv-l  { opacity:0; transform:translateX(-28px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .rv-r  { opacity:0; transform:translateX(28px);  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .rv.in, .rv-l.in, .rv-r.in { opacity:1; transform:none; }
+
+    /* Phone float */
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+    .float-y { animation: floatY 5.5s ease-in-out infinite; }
+
+    /* Marquee */
+    @keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .mq-track { display:flex; animation: mq 30s linear infinite; width:max-content; }
+
+    /* Interactions */
+    .hover-lift { transition: transform .2s ease, box-shadow .2s ease; cursor:pointer; }
+    .hover-lift:hover { transform:translateY(-3px); box-shadow:0 10px 32px rgba(0,0,0,.1); }
+    .btn-t { transition: background .15s, transform .15s, color .15s, border-color .15s; }
+    .btn-t:hover { transform:translateY(-1px); }
+    .nav-ul li a { position:relative; }
+    .nav-ul li a::after {
+      content:''; position:absolute; bottom:-3px; left:0; right:0;
+      height:1.5px; background:#E67E50; transform:scaleX(0);
+      transition:transform .2s; transform-origin:left;
+    }
+    .nav-ul li a:hover::after { transform:scaleX(1); }
+
+    a { text-decoration:none; color:inherit; }
+    ::-webkit-scrollbar { width:3px; }
+    ::-webkit-scrollbar-thumb { background:#E67E50; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── tokens ── */
+const T = {
+  white:'#ffffff', gray:'#F8F6F5', border:'#EAE6E2',
+  text:'#1A1A1A', text2:'#6B6360', text3:'#ABA5A0',
+  accent:'#E67E50',
+  hot:'#E67E50', warm:'#D4A574', mild:'#B8C5A0', cool:'#8FB5D5',
+};
+const tc = v => v>=90?T.hot:v>=75?T.warm:v>=60?T.mild:T.cool;
+
+/* ── hooks ── */
+const useReveal = (cls, delay=0) => {
+  const ref = useRef(null);
+  useEffect(()=>{
+    const el=ref.current; if(!el) return;
+    const ob=new IntersectionObserver(([e])=>{
+      if(e.isIntersecting) setTimeout(()=>el.classList.add('in'),delay);
+    },{threshold:.1});
+    ob.observe(el);
+    return ()=>ob.disconnect();
+  },[delay]);
+  return ref;
+};
+
+const useIsMobile = () => {
+  const [v, setV] = useState(()=>window.innerWidth < 768);
+  useEffect(()=>{
+    const fn = ()=>setV(window.innerWidth < 768);
+    window.addEventListener('resize', fn);
+    return ()=>window.removeEventListener('resize', fn);
+  },[]);
+  return v;
+};
+
+/* ── phone wrapper ── */
+const Phone = ({ children, bg='#f5f4ef' }) => (
+  <div style={{
+    width:248, height:516, flexShrink:0, position:'relative',
+    background:bg, borderRadius:36, border:'5px solid #2a2a2a',
+    boxShadow:'0 20px 56px rgba(0,0,0,.18)',
+    overflow:'hidden',
+  }}>
+    <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:56,height:18,background:'#2a2a2a',borderRadius:'0 0 12px 12px',zIndex:10}}/>
+    <div style={{padding:'10px 16px 3px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <span style={{fontSize:9,fontWeight:700,color:'#1a1a1a'}}>9:41</span>
+      <div style={{display:'flex',gap:3,alignItems:'center'}}>
+        <svg width="11" height="8" viewBox="0 0 22 12" fill="none">
+          {[0,1,2,3].map(i=><rect key={i} x={i*6} y={12-(i+1)*3} width="4" height={(i+1)*3} rx="1" fill={i<3?'#1a1a1a':'#ccc'}/>)}
+        </svg>
+        <svg width="12" height="8" viewBox="0 0 24 16"><path d="M1 8C5 2 19 2 23 8" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" fill="none"/><path d="M4 11C7 7 17 7 20 11" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" fill="none"/><circle cx="12" cy="14" r="2" fill="#1a1a1a"/></svg>
+        <div style={{width:18,height:9,border:'1.5px solid #1a1a1a',borderRadius:2,padding:'1.5px 2px'}}>
+          <div style={{height:'100%',width:'70%',background:'#1a1a1a',borderRadius:1}}/>
+        </div>
+      </div>
+    </div>
+    {children}
+  </div>
+);
+
+/* ── screen: home ── */
+const SHome = () => (
+  <div>
+    <div style={{padding:'2px 14px 7px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <img src="logo_월간책방.png" alt="월간책방" style={{height:18,display:'block'}} onError={e=>{e.target.style.display='none';}}/>
+      <div style={{display:'flex',gap:7}}>
+        {[0,1].map(i=>(
+          <div key={i} style={{width:18,height:18,background:'rgba(0,0,0,.06)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.5">
+              {i===0?<><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>:<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>}
+            </svg>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{padding:'0 12px 7px'}}>
+      <div style={{background:'#fff',border:`1.5px solid ${T.accent}`,borderRadius:20,padding:'5px 11px',display:'flex',alignItems:'center',gap:5}}>
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span style={{fontSize:7.5,color:'#bbb'}}>서평을 남기고 싶은 책이 있나요?</span>
+      </div>
+    </div>
+    <div style={{margin:'0 12px 8px',background:'#fff',borderRadius:7,padding:'8px 10px',display:'flex',justifyContent:'space-between',alignItems:'center',border:'1px solid #ede9e4'}}>
+      <div>
+        <div style={{fontSize:7.5,fontWeight:700,color:'#1a1a1a',marginBottom:2}}>당신은 지금 어떤 책을 읽고 있나요?</div>
+        <div style={{fontSize:6,color:'#aaa'}}>당신이 읽은 책의 이야기를 들려주세요.</div>
+      </div>
+      <div style={{width:28,height:28,background:T.accent,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+    </div>
+    <div style={{padding:'0 12px 8px',display:'flex',gap:4}}>
+      {['종합','소설','경제/경영','자기계발'].map((t,i)=>(
+        <div key={t} style={{padding:'2.5px 7px',borderRadius:12,fontSize:7,fontWeight:i===0?700:400,border:`1px solid ${i===0?T.accent:'#ccc'}`,color:i===0?T.accent:'#999',flexShrink:0}}>{t}</div>
+      ))}
+    </div>
+    <div style={{padding:'0 12px 8px'}}>
+      <div style={{fontSize:8,fontWeight:700,color:'#1a1a1a',marginBottom:2}}>지금 가장 서평 온도가 높은 책</div>
+      <div style={{fontSize:6,color:'#aaa',marginBottom:6}}>현재 가장 서평이 많이 달린 책</div>
+      <div style={{display:'flex',gap:8}}>
+        {[['#C4A882',98.2],['#4A6FA5',95.7],['#C4B44A',91.4]].map(([c,t],i)=>(
+          <div key={i} style={{width:64,height:84,background:c,borderRadius:4,boxShadow:'0 3px 8px rgba(0,0,0,.15)',position:'relative',flexShrink:0}}>
+            <div style={{position:'absolute',bottom:3,right:3,background:T.accent,borderRadius:5,padding:'1.5px 4px',fontSize:5.5,fontWeight:700,color:'#fff'}}>{t}°</div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{padding:'6px 12px 0'}}>
+      <div style={{fontSize:8,fontWeight:700,color:'#1a1a1a',marginBottom:6}}>따끈따끈, 새로 들어온 책</div>
+      <div style={{display:'flex',gap:8}}>
+        {['#C4A882','#4A6FA5','#8BA87A'].map((c,i)=>(
+          <div key={i} style={{width:64,height:80,background:c,borderRadius:4,boxShadow:'0 2px 6px rgba(0,0,0,.12)'}}/>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/* ── screen: ranking ── */
+const SRanking = () => (
+  <div style={{padding:'4px 12px 0'}}>
+    <div style={{fontSize:9,fontWeight:700,color:'#1a1a1a',marginBottom:8,letterSpacing:'-.3px'}}>서평 온도 랭킹</div>
+    {[
+      {t:'마음에 수놓은 사색의 시간',a:'김지원',v:98.2,c:T.hot},
+      {t:'자정 너머 한 시간',a:'헤르만 헤세',v:95.7,c:T.hot},
+      {t:'제인 오스틴의 책장',a:'리베카 롬니',v:91.4,c:T.hot},
+      {t:'오늘의 경제학',a:'최재천',v:87.9,c:T.warm},
+      {t:'달과 6펜스',a:'서머싯 몸',v:82.6,c:T.warm},
+      {t:'나미야 잡화점',a:'히가시노 게이고',v:76.1,c:T.mild},
+    ].map((b,i)=>(
+      <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'6px 0',borderBottom:'1px solid #ede9e4'}}>
+        <span style={{fontSize:9,fontWeight:700,color:T.text3,width:14,textAlign:'center',flexShrink:0}}>{i+1}</span>
+        <div style={{width:32,height:44,background:['#C4A882','#4A6FA5','#C4B44A','#6B9E8C','#C47A5A','#9B7BB8'][i],borderRadius:3,flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:8,fontWeight:600,color:'#1a1a1a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.t}</div>
+          <div style={{fontSize:6.5,color:T.text3,marginTop:1.5}}>{b.a}</div>
+          <div style={{marginTop:3,height:3,background:'#ede9e4',borderRadius:2}}>
+            <div style={{height:'100%',width:`${b.v}%`,background:b.c,borderRadius:2}}/>
+          </div>
+        </div>
+        <div style={{fontSize:8.5,fontWeight:700,color:b.c,flexShrink:0}}>{b.v}°</div>
+      </div>
+    ))}
+  </div>
+);
+
+/* ── screen: review group ── */
+const SReview = () => (
+  <div style={{padding:'4px 12px 0'}}>
+    <div style={{fontSize:9,fontWeight:700,color:'#1a1a1a',marginBottom:8}}>이달의 서평단 모집</div>
+    {[
+      {pub:'민음사',book:'파친코',cover:'#4A7DB8',status:'모집중',deadline:'~ 5월 20일',max:200},
+      {pub:'문학동네',book:'채식주의자',cover:'#6B9E5A',status:'마감임박',deadline:'~ 5월 15일',max:150},
+      {pub:'창비',book:'82년생 김지영',cover:'#9B7BB8',status:'모집중',deadline:'~ 5월 25일',max:100},
+    ].map((g,i)=>(
+      <div key={i} style={{background:'#fff',border:'1px solid #ede9e4',borderRadius:7,padding:'9px',marginBottom:7}}>
+        <div style={{display:'flex',gap:7,alignItems:'flex-start'}}>
+          <div style={{width:40,height:54,background:g.cover,borderRadius:3,flexShrink:0}}/>
+          <div style={{flex:1}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:3}}>
+              <span style={{fontSize:6.5,fontWeight:700,color:'#fff',background:g.status==='모집중'?T.accent:'#D4A574',padding:'2px 6px',borderRadius:10}}>{g.status}</span>
+              <span style={{fontSize:6.5,color:T.text3}}>최대 {g.max}명</span>
+            </div>
+            <div style={{fontSize:8.5,fontWeight:700,color:'#1a1a1a',marginBottom:2}}>{g.book}</div>
+            <div style={{fontSize:7,color:T.text3,marginBottom:5}}>{g.pub} · {g.deadline}</div>
+            <div style={{background:T.accent,color:'#fff',borderRadius:4,padding:'3.5px 0',textAlign:'center',fontSize:7.5,fontWeight:700}}>신청하기</div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* ── screen: book club ── */
+const SClub = () => (
+  <div style={{padding:'4px 12px 0'}}>
+    <div style={{fontSize:9,fontWeight:700,color:'#1a1a1a',marginBottom:8}}>독서모임</div>
+    {[
+      {tag:'소설',name:'밤의 독서가들',last:'자정 너머 한 시간 어떠셨나요?',m:12,t:'5분 전'},
+      {tag:'에세이',name:'일상의 책방',last:'오늘 읽은 구절을 공유해요',m:8,t:'23분 전'},
+      {tag:'경제',name:'부자 독서단',last:'이 책 정말 현실적인 조언이에요',m:24,t:'1시간 전'},
+      {tag:'인문',name:'철학의 밤',last:'칸트의 이 구절이 인상 깊었어요',m:16,t:'3시간 전'},
+    ].map((c,i)=>(
+      <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 0',borderBottom:'1px solid #ede9e4'}}>
+        <div style={{width:34,height:34,background:['#E67E50','#B8C5A0','#8FB5D5','#D4A574'][i],borderRadius:'50%',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div style={{fontSize:8.5,fontWeight:700,color:'#1a1a1a'}}>{c.name}</div>
+            <div style={{fontSize:6.5,color:T.text3}}>{c.t}</div>
+          </div>
+          <div style={{fontSize:7,color:T.text2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',marginTop:2}}>{c.last}</div>
+          <div style={{display:'flex',gap:4,marginTop:3,alignItems:'center'}}>
+            <span style={{fontSize:6,color:'#fff',background:i===0?T.accent:T.text3,padding:'1.5px 5px',borderRadius:8}}>{c.tag}</span>
+            <span style={{fontSize:6.5,color:T.text3}}>멤버 {c.m}명</span>
+          </div>
+        </div>
+      </div>
+    ))}
+    <div style={{marginTop:8,border:`1px dashed ${T.border}`,borderRadius:6,padding:'8px',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span style={{fontSize:8.5,fontWeight:600,color:T.accent}}>새 독서모임 만들기</span>
+    </div>
+  </div>
+);
+
+/* ── screen: library ── */
+const SLibrary = () => (
+  <div style={{padding:'4px 12px 0'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+      <div style={{fontSize:9,fontWeight:700,color:'#1a1a1a'}}>나의 서재</div>
+      <div style={{fontSize:7.5,color:T.accent,fontWeight:600}}>서평 23편</div>
+    </div>
+    <div style={{background:T.accent,borderRadius:8,padding:'10px 12px',marginBottom:10,color:'#fff'}}>
+      <div style={{fontSize:7,opacity:.82,marginBottom:4,letterSpacing:.5}}>나의 독서 온도</div>
+      <div style={{fontSize:26,fontWeight:900,letterSpacing:'-1.5px',lineHeight:1}}>87.4°</div>
+      <div style={{fontSize:7.5,marginTop:4,opacity:.85}}>지난달 대비 +3.2° 상승</div>
+      <div style={{display:'flex',gap:16,marginTop:10,paddingTop:10,borderTop:'1px solid rgba(255,255,255,.25)'}}>
+        {[['34권','읽은 책'],['23편','서평'],['14일','연속 기록']].map(([v,l])=>(
+          <div key={l}><div style={{fontSize:11,fontWeight:700}}>{v}</div><div style={{fontSize:6.5,opacity:.75,marginTop:1}}>{l}</div></div>
+        ))}
+      </div>
+    </div>
+    <div style={{fontSize:8,fontWeight:600,color:'#1a1a1a',marginBottom:6}}>최근 읽은 책</div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5}}>
+      {['#C4A882','#4A6FA5','#C4B44A','#6B9E8C','#C47A5A','#9B7BB8','#D4A574','#8FB5D5'].map((c,i)=>(
+        <div key={i} style={{aspectRatio:'2/3',background:c,borderRadius:3,boxShadow:'0 2px 6px rgba(0,0,0,.12)'}}/>
+      ))}
+    </div>
+  </div>
+);
+
+/* ══════════════════ NAV ══════════════════ */
+const Nav = ({ dark }) => {
+  const isMobile = useIsMobile();
+  return (
+    <nav style={{
+      position:'fixed',top:0,left:0,right:0,zIndex:200,height:60,
+      display:'flex',alignItems:'center',padding: isMobile ? '0 20px' : '0 48px',justifyContent:'space-between',
+      background: dark ? 'transparent' : '#fff',
+      borderBottom: dark ? 'none' : `1px solid ${T.border}`,
+      transition:'background .35s ease, border-color .35s ease',
+    }}>
+      <img
+        src="logo_월간책방.png" alt="월간책방"
+        style={{height: isMobile ? 22 : 28,display:'block',filter: dark ? 'brightness(0) invert(1)' : 'none',transition:'filter .35s ease'}}
+        onError={e=>{e.target.style.display='none';}}
+      />
+      <a href="#download" className="btn-t" style={{
+        marginLeft:'auto',
+        padding: isMobile ? '8px 16px' : '9px 22px',fontSize: isMobile ? 12 : 13,fontWeight:700,borderRadius:4,
+        background: dark?'rgba(255,255,255,.15)':T.accent,
+        color:'#fff',
+        border: dark?'1px solid rgba(255,255,255,.35)':'none',
+        backdropFilter: dark?'blur(8px)':'none',
+      }}>앱 다운로드</a>
+    </nav>
+  );
+};
+
+/* ══════════════════ HERO ══════════════════ */
+const Hero = ({ heroRef }) => {
+  const isMobile = useIsMobile();
+  const rText = useReveal('rv', 200);
+  const rPhone = useReveal('rv-r', 350);
+  return (
+    <section ref={heroRef} style={{
+      minHeight:'100vh',position:'relative',
+      background:'#1a1410',
+      display:'flex',alignItems:'center',
+      overflow:'hidden',
+    }}>
+      {/* background photo */}
+      <div style={{
+        position:'absolute',inset:0,
+        backgroundImage:"url('hero-bg.png')",
+        backgroundSize:'cover',backgroundPosition:'center',
+        backgroundAttachment:'scroll',
+        opacity:.55,
+      }}/>
+      {/* warm dark vignette */}
+      <div style={{
+        position:'absolute',inset:0,
+        background: isMobile
+          ? 'linear-gradient(180deg, rgba(12,8,5,.88) 0%, rgba(12,8,5,.72) 100%)'
+          : 'linear-gradient(105deg, rgba(12,8,5,.82) 0%, rgba(12,8,5,.55) 55%, rgba(12,8,5,.3) 100%)',
+      }}/>
+
+      <div style={{
+        position:'relative',zIndex:1,
+        maxWidth:1140,margin:'0 auto',width:'100%',
+        padding: isMobile ? '96px 24px 64px' : '100px 48px 80px',
+        display:'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: 'center',
+        gap: isMobile ? 44 : 72,
+        justifyContent:'space-between',
+      }}>
+        {/* text */}
+        <div ref={rText} className="rv" style={{flex:1,minWidth:0,maxWidth: isMobile ? '100%' : 540, textAlign: isMobile ? 'center' : 'left'}}>
+          <div style={{
+            display:'inline-flex',alignItems:'center',gap:8,
+            padding:'5px 14px',borderRadius:100,
+            border:'1px solid rgba(255,255,255,.22)',
+            background:'rgba(255,255,255,.08)',
+            backdropFilter:'blur(8px)',
+            marginBottom:28,
+          }}>
+            <div style={{width:6,height:6,background:T.accent,borderRadius:'50%'}}/>
+            <span style={{fontSize:12,color:'rgba(255,255,255,.8)',fontWeight:500}}>한국 최초 서평 기반 독서 온도 플랫폼</span>
+          </div>
+
+          <h1 style={{
+            fontSize: isMobile ? 'clamp(30px,8vw,40px)' : 'clamp(32px,4.2vw,52px)',
+            fontWeight:900,lineHeight:1.18,
+            letterSpacing:'-2px',marginBottom:24,color:'#fff',wordBreak:'keep-all',
+          }}>
+            베스트셀러 순위가 당신에게<br/>
+            <span style={{color:T.accent}}>진짜 좋은 책</span>을<br/>
+            알려주던가요?
+          </h1>
+
+          <p style={{
+            fontSize: isMobile ? 15 : 17,lineHeight:1.85,marginBottom:40,
+            color:'rgba(255,255,255,.72)',maxWidth:460,wordBreak:'keep-all',
+            margin: isMobile ? '0 auto 40px' : '0 0 40px',
+          }}>
+            이제 광고된 순위 대신, 독자들의 뜨거운 기록으로 책을 선택하세요.<br/>
+            한국 최초의 서평 기반 독서 온도 플랫폼, <strong style={{color:'#fff',fontWeight:700}}>월간책방</strong>
+          </p>
+
+          <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent: isMobile ? 'center' : 'flex-start'}}>
+            <a href="#download" className="btn-t" style={{
+              display:'flex',alignItems:'center',gap:10,
+              padding: isMobile ? '11px 18px' : '13px 22px',
+              background:'rgba(255,255,255,.12)',color:'#fff',borderRadius:8,fontWeight:600,fontSize: isMobile ? 14 : 15,
+              border:'1px solid rgba(255,255,255,.3)',backdropFilter:'blur(8px)',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+              Google Play
+            </a>
+            <a href="#download" className="btn-t" style={{
+              display:'flex',alignItems:'center',gap:10,
+              padding: isMobile ? '11px 18px' : '13px 22px',
+              background:'#fff',color:T.text,borderRadius:8,fontWeight:700,fontSize: isMobile ? 14 : 15,
+              boxShadow:'0 4px 24px rgba(0,0,0,.25)',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={T.text}><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              App Store
+            </a>
+          </div>
+        </div>
+
+        {/* phone */}
+        <div ref={rPhone} className="rv-r float-y" style={{
+          filter:'drop-shadow(-20px 32px 56px rgba(0,0,0,.5))',
+          alignSelf: isMobile ? 'center' : 'auto',
+          flexShrink: 0,
+        }}>
+          <Phone><SHome /></Phone>
+        </div>
+      </div>
+
+      {/* scroll indicator */}
+      {!isMobile && (
+        <div style={{position:'absolute',bottom:32,left:'50%',transform:'translateX(-50%)',display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
+          <span style={{fontSize:11,color:'rgba(255,255,255,.4)',letterSpacing:2,fontWeight:500}}>SCROLL</span>
+          <div style={{width:1,height:36,background:'rgba(255,255,255,.2)'}}/>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/* ══════════════════ MARQUEE ══════════════════ */
+const Marquee = () => {
+  const items = ['온도 랭킹','서평단','독서모임','오늘 한 줄','나만의 서재','서평 기록','출판사 신간','독서 온도'];
+  const all = [...items,...items,...items,...items];
+  return (
+    <div style={{overflow:'hidden',borderTop:`1px solid ${T.border}`,borderBottom:`1px solid ${T.border}`,padding:'13px 0',background:T.gray}}>
+      <div className="mq-track">
+        {all.map((s,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',gap:18,paddingRight:18,whiteSpace:'nowrap'}}>
+            <span style={{fontSize:13,fontWeight:500,color:T.text2}}>{s}</span>
+            <span style={{width:5,height:5,background:T.accent,borderRadius:'50%',display:'block',flexShrink:0}}/>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════ VALUE PROP ══════════════════ */
+const ValueProp = () => {
+  const isMobile = useIsMobile();
+  const r = useReveal('rv', 0);
+  return (
+    <section style={{padding: isMobile ? '60px 24px' : '96px 48px',maxWidth:1080,margin:'0 auto'}}>
+      <div ref={r} className="rv">
+        <p style={{fontSize:11,fontWeight:600,letterSpacing:3,color:T.text3,textTransform:'uppercase',marginBottom:40,textAlign: isMobile ? 'center' : 'left'}}>Why 월간책방</p>
+        <div style={{display:'grid',gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',gap:0}}>
+          <div style={{
+            paddingRight: isMobile ? 0 : 56,
+            paddingBottom: isMobile ? 40 : 0,
+            borderRight: isMobile ? 'none' : `1px solid ${T.border}`,
+            borderBottom: isMobile ? `1px solid ${T.border}` : 'none',
+            textAlign: isMobile ? 'center' : 'left',
+          }}>
+            <div style={{width:32,height:3,background:T.border,borderRadius:2,marginBottom:20,margin: isMobile ? '0 auto 20px' : '0 0 20px'}}/>
+            <h2 style={{fontSize:'clamp(20px,2.5vw,28px)',fontWeight:900,letterSpacing:'-1px',marginBottom:14,color:T.text2,lineHeight:1.4,wordBreak:'keep-all'}}>베스트셀러의 함정</h2>
+            <p style={{fontSize:15,color:T.text2,lineHeight:1.9,wordBreak:'keep-all'}}>출판사 마케팅 비용, 대형 서점 알고리즘, 인플루언서 협찬. 당신이 보는 순위는 이미 팔렸습니다. 좋은 책이 아닌 잘 팔린 책이 상위권을 차지합니다.</p>
+          </div>
+          <div style={{
+            paddingLeft: isMobile ? 0 : 56,
+            paddingTop: isMobile ? 40 : 0,
+            textAlign: isMobile ? 'center' : 'left',
+          }}>
+            <div style={{width:32,height:3,background:T.accent,borderRadius:2,marginBottom:20,margin: isMobile ? '0 auto 20px' : '0 0 20px'}}/>
+            <h2 style={{fontSize:'clamp(20px,2.5vw,28px)',fontWeight:900,letterSpacing:'-1px',marginBottom:14,color:T.text,lineHeight:1.4,wordBreak:'keep-all'}}>독자가 직접 만드는 살아있는 온도</h2>
+            <p style={{fontSize:15,color:T.text2,lineHeight:1.9,wordBreak:'keep-all'}}>서평이 달리면 온도가 오릅니다. 관심이 식으면 내려갑니다. 자본이 아닌 독자의 목소리가 책의 생명력을 결정하는, 조작 불가능한 지표입니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ FEATURE ITEM ══════════════════ */
+const FeatureItem = ({ num, headline, desc, bullets, Screen, reversed, gray }) => {
+  const isMobile = useIsMobile();
+  const rT = useReveal('rv-l', 0);
+  const rP = useReveal('rv-r', 120);
+
+  const textBlock = (
+    <div ref={rT} className="rv-l" style={{flex:'1 1 0',minWidth:0,maxWidth: isMobile ? '100%' : 480, textAlign: isMobile ? 'center' : 'left'}}>
+      <p style={{fontSize:11,fontWeight:700,letterSpacing:3,color:T.accent,textTransform:'uppercase',marginBottom:16}}>{num}</p>
+      <h3 style={{fontSize: isMobile ? 'clamp(24px,6vw,32px)' : 'clamp(26px,3vw,38px)',fontWeight:900,letterSpacing:'-1.5px',lineHeight:1.22,marginBottom:18,wordBreak:'keep-all',whiteSpace:'pre-line'}}>{headline}</h3>
+      <p style={{fontSize: isMobile ? 14 : 15,color:T.text2,lineHeight:1.9,marginBottom:24,wordBreak:'keep-all'}}>{desc}</p>
+      <div style={{display:'flex',flexDirection:'column',gap:10,alignItems: isMobile ? 'center' : 'flex-start'}}>
+        {bullets.map(b=>(
+          <div key={b} style={{display:'flex',alignItems:'flex-start',gap:10,textAlign:'left'}}>
+            <div style={{width:5,height:5,background:T.accent,borderRadius:'50%',flexShrink:0,marginTop:8}}/>
+            <span style={{fontSize:14,color:T.text,lineHeight:1.65,wordBreak:'keep-all'}}>{b}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const phoneBlock = (
+    <div ref={rP} className="rv-r" style={{flex:'0 0 auto',display:'flex',justifyContent:'center', alignSelf: isMobile ? 'center' : 'auto'}}>
+      <div style={{filter:'drop-shadow(0 20px 48px rgba(0,0,0,.13))'}}>
+        <Phone><Screen /></Phone>
+      </div>
+    </div>
+  );
+
+  return (
+    <section style={{background:gray?T.gray:T.white,borderTop:`1px solid ${T.border}`,padding: isMobile ? '60px 0' : '96px 0'}}>
+      <div style={{
+        maxWidth:1080,margin:'0 auto',padding: isMobile ? '0 24px' : '0 48px',
+        display:'flex',gap: isMobile ? 40 : 80,alignItems: isMobile ? 'stretch' : 'center',
+        flexDirection: isMobile ? 'column' : 'row',
+      }}>
+        {textBlock}
+        {phoneBlock}
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ HOW IT WORKS ══════════════════ */
+const HowItWorks = () => {
+  const isMobile = useIsMobile();
+  const r = useReveal('rv', 0);
+  const steps = [
+    {n:'01',title:'책을 검색하세요',desc:'읽은 책, 읽고 싶은 책을 검색하고 서재에 담아두세요. 1,800여 권의 도서가 등록되어 있습니다.'},
+    {n:'02',title:'서평을 남기세요',desc:'솔직한 한 문장도 좋습니다. 당신의 서평이 책의 온도를 만들어갑니다. 기록할수록 온도가 오릅니다.'},
+    {n:'03',title:'온도가 올라갑니다',desc:'서평이 쌓일수록 책의 온도가 상승합니다. 내 서평이 모여 나만의 독서 온도도 함께 높아집니다.'},
+  ];
+  return (
+    <section style={{background:T.gray,padding: isMobile ? '60px 24px' : '96px 48px',borderTop:`1px solid ${T.border}`}}>
+      <div style={{maxWidth:1080,margin:'0 auto'}}>
+        <div ref={r} className="rv" style={{textAlign:'center',marginBottom: isMobile ? 40 : 60}}>
+          <p style={{fontSize:11,fontWeight:600,letterSpacing:3,color:T.text3,textTransform:'uppercase',marginBottom:14}}>How It Works</p>
+          <h2 style={{fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,letterSpacing:'-1.5px'}}>3단계로 시작하세요</h2>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)',gap:0}}>
+          {steps.map((s,i)=>{
+            const rr = useReveal('rv',i*100);
+            return (
+              <div key={i} ref={rr} className="rv" style={{
+                padding: isMobile ? '28px 0' : '36px 32px',
+                borderRight: isMobile ? 'none' : (i<steps.length-1?`1px solid ${T.border}`:'none'),
+                borderBottom: isMobile ? (i<steps.length-1?`1px solid ${T.border}`:'none') : 'none',
+                textAlign: isMobile ? 'center' : 'left',
+              }}>
+                <div style={{fontSize:14,fontWeight:900,color:T.accent,letterSpacing:2,marginBottom:20}}>{s.n}</div>
+                <div style={{width:40,height:2,background:T.border,marginBottom:20,borderRadius:1,margin: isMobile ? '0 auto 20px' : '0 0 20px'}}/>
+                <h3 style={{fontSize:20,fontWeight:700,marginBottom:10}}>{s.title}</h3>
+                <p style={{fontSize:14,color:T.text2,lineHeight:1.85,wordBreak:'keep-all'}}>{s.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ ADMIN ══════════════════ */
+const Admin = () => {
+  const isMobile = useIsMobile();
+  const rl = useReveal('rv-l',0);
+  const rr = useReveal('rv-r',100);
+  return (
+    <section style={{padding: isMobile ? '60px 24px' : '96px 48px',maxWidth:1080,margin:'0 auto',borderTop:`1px solid ${T.border}`}}>
+      <div style={{display:'flex',gap: isMobile ? 40 : 72,alignItems: isMobile ? 'stretch' : 'center',flexDirection: isMobile ? 'column' : 'row'}}>
+        <div ref={rl} className="rv-l" style={{flex:1,minWidth:0,maxWidth: isMobile ? '100%' : 400, textAlign: isMobile ? 'center' : 'left'}}>
+          <p style={{fontSize:11,fontWeight:600,letterSpacing:3,color:T.text3,textTransform:'uppercase',marginBottom:20}}>For 서평단장</p>
+          <h2 style={{fontSize:'clamp(22px,3vw,34px)',fontWeight:900,letterSpacing:'-1.5px',lineHeight:1.3,marginBottom:18,wordBreak:'keep-all'}}>서평단 운영이<br/>이렇게 쉬웠나요?</h2>
+          <p style={{fontSize:15,color:T.text2,lineHeight:1.9,marginBottom:28,wordBreak:'keep-all'}}>신청자 데이터 수집, 주소 취합, 발송 엑셀 생성까지. 서평단장이 정말 필요한 기능만 담았습니다.</p>
+          {['신청자 데이터 자동 엑셀 추출','배송 주소 일괄 취합 및 정리','서평 제출 현황 실시간 확인','서평단 활동 통계 대시보드'].map(tx=>(
+            <div key={tx} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,justifyContent: isMobile ? 'center' : 'flex-start'}}>
+              <div style={{width:16,height:16,background:T.accent,borderRadius:'50%',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span style={{fontSize:14,color:T.text}}>{tx}</span>
+            </div>
+          ))}
+        </div>
+        <div ref={rr} className="rv-r hover-lift" style={{flex:1,minWidth:0,borderRadius:10,overflow:'hidden',border:`1px solid ${T.border}`,boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
+          <div style={{background:'#f0efee',padding:'10px 14px',display:'flex',alignItems:'center',gap:6,borderBottom:`1px solid ${T.border}`}}>
+            <div style={{display:'flex',gap:5}}>
+              {['#FF5F57','#FEBC2E','#28C840'].map(c=><div key={c} style={{width:10,height:10,background:c,borderRadius:'50%'}}/>)}
+            </div>
+            <div style={{flex:1,textAlign:'center',fontSize:11,color:T.text3}}>서평단 관리 대시보드</div>
+          </div>
+          <div style={{padding:18,background:T.white}}>
+            <div style={{display:'flex',gap:8,marginBottom:14}}>
+              {[['24명','신청자'],['18명','선정'],['12편','서평 완료']].map(([n,l])=>(
+                <div key={l} style={{flex:1,padding:'10px 8px',background:T.gray,borderRadius:6,textAlign:'center',border:`1px solid ${T.border}`}}>
+                  <div style={{fontSize:17,fontWeight:700,color:T.accent}}>{n}</div>
+                  <div style={{fontSize:9,color:T.text3,marginTop:2}}>{l}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 76px 56px 50px',gap:6,padding:'5px 8px',background:T.gray,borderRadius:5,fontSize:10,color:T.text3,fontWeight:600,marginBottom:4}}>
+              {['이름','주소','서평','상태'].map(h=><span key={h}>{h}</span>)}
+            </div>
+            {[['김서연','서울 강남구','제출','완료'],['이민준','경기 성남시','미제출','대기'],['박지후','서울 마포구','제출','완료'],['최수아','인천 연수구','제출','완료'],['정하윤','경기 수원시','미제출','발송']].map(([nm,ad,rv,st],i)=>(
+              <div key={i} style={{display:'grid',gridTemplateColumns:'1fr 76px 56px 50px',gap:6,padding:'7px 8px',borderBottom:`1px solid ${T.border}`,fontSize:11,color:T.text}}>
+                <span style={{fontWeight:500}}>{nm}</span>
+                <span style={{fontSize:9,color:T.text2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ad}</span>
+                <span style={{color:rv==='제출'?'#5A9E6F':T.text3,fontWeight:rv==='제출'?600:400}}>{rv}</span>
+                <span style={{fontSize:9,padding:'2px 5px',borderRadius:3,textAlign:'center',background:st==='완료'?'#EDF7EE':st==='발송'?'#FEF0EB':'#F5F5F5',color:st==='완료'?'#5A9E6F':st==='발송'?T.accent:T.text3,fontWeight:600}}>{st}</span>
+              </div>
+            ))}
+            <div style={{display:'flex',gap:8,marginTop:14}}>
+              <div style={{flex:1,padding:'10px',borderRadius:5,textAlign:'center',background:T.accent,fontSize:12,fontWeight:700,cursor:'pointer',color:'#fff'}}>엑셀 내보내기</div>
+              <div style={{flex:1,padding:'10px',borderRadius:5,textAlign:'center',border:`1px solid ${T.border}`,fontSize:12,color:T.text,cursor:'pointer'}}>주소 취합</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ TESTIMONIALS ══════════════════ */
+const Testimonials = () => {
+  const isMobile = useIsMobile();
+  const r = useReveal('rv',0);
+  const quotes = [
+    {q:'"처음으로 베스트셀러가 아닌 책을 읽고 감동받았어요. 온도 랭킹에서 발견한 책이 제 인생 책이 됐습니다."',name:'김서연',role:'직장인, 34세',temp:91.4,tColor:T.hot},
+    {q:'"서평단 활동으로 발매 전 신간을 먼저 읽을 수 있어서 좋아요. 관리 툴 덕분에 운영도 훨씬 편해졌어요."',name:'박준혁',role:'서평단장, 독서 모임 운영자',temp:87.2,tColor:T.warm},
+    {q:'"피드를 보다 보면 어느새 책을 집게 돼요. 독서 동기부여에 이만한 앱이 없는 것 같아요."',name:'이하은',role:'대학생, 22세',temp:83.9,tColor:T.warm},
+  ];
+  return (
+    <section style={{background:T.gray,padding: isMobile ? '60px 24px' : '96px 48px',borderTop:`1px solid ${T.border}`}}>
+      <div style={{maxWidth:1080,margin:'0 auto'}}>
+        <div ref={r} className="rv" style={{textAlign:'center',marginBottom:52}}>
+          <p style={{fontSize:11,fontWeight:600,letterSpacing:3,color:T.text3,textTransform:'uppercase',marginBottom:14}}>Reviews</p>
+          <h2 style={{fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,letterSpacing:'-1.5px'}}>독자들의 이야기</h2>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:20}}>
+          {quotes.map((q,i)=>{
+            const rr = useReveal('rv',i*100);
+            return (
+              <div key={i} ref={rr} className="rv hover-lift" style={{background:T.white,border:`1px solid ${T.border}`,borderRadius:8,padding:'28px 24px'}}>
+                <div style={{width:32,height:3,background:q.tColor,borderRadius:2,marginBottom:22}}/>
+                <p style={{fontSize:15,color:T.text,lineHeight:1.8,marginBottom:24,wordBreak:'keep-all',fontStyle:'italic'}}>{q.q}</p>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:20,borderTop:`1px solid ${T.border}`}}>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:700,color:T.text}}>{q.name}</div>
+                    <div style={{fontSize:12,color:T.text3,marginTop:2}}>{q.role}</div>
+                  </div>
+                  <div style={{fontSize:13,fontWeight:700,color:q.tColor,border:`1px solid ${q.tColor}`,padding:'4px 10px',borderRadius:100}}>{q.temp}°</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ CTA ══════════════════ */
+const CTA = () => {
+  const isMobile = useIsMobile();
+  const r = useReveal('rv',0);
+  return (
+    <section id="download" style={{padding: isMobile ? '72px 24px' : '112px 48px',textAlign:'center',borderTop:`1px solid ${T.border}`}}>
+      <div ref={r} className="rv" style={{maxWidth:520,margin:'0 auto'}}>
+        <img src="logo_월간책방.png" alt="월간책방" style={{height:34,display:'block',margin:'0 auto 32px'}} onError={e=>{e.target.style.display='none';}}/>
+        <h2 style={{fontSize:'clamp(28px,4.5vw,46px)',fontWeight:900,letterSpacing:'-2px',marginBottom:18,lineHeight:1.2,wordBreak:'keep-all'}}>지금 바로 시작하세요</h2>
+        <p style={{fontSize:17,color:T.text2,marginBottom:44,lineHeight:1.85,wordBreak:'keep-all'}}>베스트셀러 순위에 속지 마세요.<br/>진짜 독자들의 온도로 책을 발견하세요.</p>
+        <div style={{display:'flex',gap:14,justifyContent:'center',flexWrap:'wrap',marginBottom:20}}>
+          {[
+            {label:'App Store',sub:'Download on the',icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>},
+            {label:'Google Play',sub:'Get it on',icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>},
+          ].map(b=>(
+            <a key={b.label} href="#" className="hover-lift btn-t" style={{display:'flex',alignItems:'center',gap:12,padding:'14px 24px',border:`1.5px solid ${T.border}`,borderRadius:8,color:T.text,background:T.white}}>
+              {b.icon}
+              <div style={{textAlign:'left'}}>
+                <div style={{fontSize:10,color:T.text3}}>{b.sub}</div>
+                <div style={{fontSize:16,fontWeight:700}}>{b.label}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <p style={{fontSize:12,color:T.text3}}>무료 설치 · iOS 14+ · Android 8+</p>
+      </div>
+    </section>
+  );
+};
+
+/* ══════════════════ APP ══════════════════ */
+const App = () => {
+  const [dark, setDark] = useState(true);
+  const heroRef = useRef(null);
+
+  useEffect(()=>{
+    const fn = ()=>{
+      const h = heroRef.current;
+      if(!h) return;
+      setDark(window.scrollY < h.offsetHeight - 80);
+    };
+    window.addEventListener('scroll',fn,{passive:true});
+    return ()=>window.removeEventListener('scroll',fn);
+  },[]);
+
+  return (
+    <div style={{background:T.white,color:T.text}}>
+      <Nav dark={dark} />
+
+      <Hero heroRef={heroRef} />
+      <Marquee />
+      <ValueProp />
+
+      {/* ── FEATURES (alternating) ── */}
+      <FeatureItem
+        num="01"
+        headline={"독자가 직접 만드는\n온도 순위"}
+        desc="서평 활동이 곧 순위입니다. 독자들의 실제 기록이 쌓여 만들어지는 실시간 온도 랭킹은 어떤 광고도, 어떤 자본도 조작할 수 없습니다."
+        bullets={['서평이 달릴 때마다 온도 실시간 상승','관심이 식으면 자연스럽게 하강','4단계 온도 컬러 시스템으로 한눈에 파악']}
+        Screen={SRanking}
+        reversed={false}
+        gray={false}
+      />
+      <FeatureItem
+        num="02"
+        headline={"신간을 가장 먼저\n읽는 독자"}
+        desc="민음사, 문학동네, 창비 등 메이저 출판사와 함께합니다. 발매 전 책을 먼저 읽고 솔직한 서평을 남겨보세요. 서평단장을 위한 전문 관리 도구도 제공합니다."
+        bullets={['메이저 출판사 신간 선독 기회 제공','서평단장 전용 신청자 관리 대시보드','주소 취합 및 엑셀 내보내기 자동화']}
+        Screen={SReview}
+        reversed={false}
+        gray={true}
+      />
+      <FeatureItem
+        num="03"
+        headline={"같은 책,\n다른 시선의 만남"}
+        desc="주제별·장르별 독서 모임을 만들고 참여하세요. 한 문장도 저마다 다르게 읽히는 곳, 그 대화 속에서 진짜 독서가 시작됩니다."
+        bullets={['장르·주제별 자유로운 모임 개설','실시간 게시판과 소통 공간 제공','모임 내 도서 온도 공유 기능']}
+        Screen={SClub}
+        reversed={false}
+        gray={false}
+      />
+      <FeatureItem
+        num="04"
+        headline={"나의 독서가\n온도로 쌓인다"}
+        desc="내가 남긴 모든 서평이 온도로 환산되어 나만의 독서 히스토리를 만들어갑니다. 오늘 어떤 책을 읽고 어떤 감정을 느꼈는지, 당신의 독서 인생이 한 권의 기록이 됩니다."
+        bullets={['서평 기록이 나만의 독서 온도로 환산','읽은 책 보관함과 독서 타임라인','연속 독서 기록 및 통계 대시보드']}
+        Screen={SLibrary}
+        reversed={false}
+        gray={true}
+      />
+
+      <HowItWorks />
+      <Admin />
+      <Testimonials />
+      <CTA />
+
+      <Footer />
+    </div>
+  );
+};
+
+const Footer = () => {
+  const isMobile = useIsMobile();
+  return (
+    <footer style={{
+      padding: isMobile ? '32px 24px' : '24px 48px',
+      borderTop:`1px solid ${T.border}`,
+      display:'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      justifyContent:'space-between',
+      alignItems: 'center',
+      gap: isMobile ? 20 : 12,
+    }}>
+      <img src="logo_월간책방.png" alt="월간책방" style={{height:22,display:'block'}} onError={e=>{e.target.style.display='none';}}/>
+      <div style={{display:'flex',gap: isMobile ? 16 : 24,flexWrap:'wrap'}}>
+        {['이용약관','개인정보처리방침','고객센터','공지사항'].map(t=>(
+          <a key={t} href="#" style={{fontSize:12,color:T.text3}}>{t}</a>
+        ))}
+      </div>
+      <p style={{fontSize:12,color:T.text3}}>© 2026 월간책방 THE MONTHLY BOOKS</p>
+    </footer>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
