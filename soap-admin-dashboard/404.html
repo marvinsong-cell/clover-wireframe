@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.host +
+        '/clover-wireframe/soap-admin-dashboard/' +
+        '?p=/' + l.pathname.slice('/clover-wireframe/soap-admin-dashboard/'.length) +
+        (l.search ? '&q=' + l.search.slice(1) : '') +
+        l.hash
+      );
+    </script>
+  </head>
+</html>

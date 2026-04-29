@@ -2,6 +2,22 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+        var q = window.location.search;
+        if (q && q.indexOf('p=') > -1) {
+          var p = q.slice(1).split('&').reduce(function(r, v) {
+            return r || (v.indexOf('p=') === 0 ? v.slice(2) : null);
+          }, null);
+          if (p) history.replaceState(null, null, '/clover-wireframe/soap-admin-dashboard' + p);
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/clover-wireframe/soap-admin-dashboard/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clover Admin</title>
