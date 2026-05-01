@@ -286,6 +286,74 @@ const SLibrary = () => (
   </div>
 );
 
+/* ── screen: today's line feed ── */
+const SFeed = () => (
+  <div style={{position:'relative',height:470,overflow:'hidden',background:'#1e1a16'}}>
+    {/* 배경 */}
+    <div style={{position:'absolute',inset:0,background:'linear-gradient(160deg,#2e2318 0%,#1a1410 60%,#0e0c0a 100%)',zIndex:0}}/>
+    {/* 책 텍스처 라인 */}
+    <div style={{position:'absolute',top:32,left:0,right:0,height:220,display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',gap:9,zIndex:1,opacity:.15}}>
+      {[75,60,70,55,65,50].map((w,i)=>(
+        <div key={i} style={{width:`${w}%`,height:1,background:'#c4a882',borderRadius:1}}/>
+      ))}
+    </div>
+    {/* 헤더 */}
+    <div style={{position:'relative',zIndex:10,display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 12px 4px'}}>
+      <span style={{fontSize:10,fontWeight:700,color:'#fff',letterSpacing:'-.3px'}}>오늘 한 줄</span>
+      <div style={{width:17,height:17,background:T.accent,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+    </div>
+    {/* 인용구 카드 */}
+    <div style={{position:'absolute',top:88,left:14,right:40,zIndex:5}}>
+      <div style={{background:'rgba(24,18,12,.88)',borderRadius:12,padding:'12px 14px',border:'1px solid rgba(255,255,255,.08)'}}>
+        <div style={{fontSize:20,fontWeight:900,color:T.accent,lineHeight:.7,marginBottom:8}}>"</div>
+        <p style={{fontSize:7.5,color:'rgba(255,255,255,.92)',lineHeight:1.8,wordBreak:'keep-all',textAlign:'center'}}>
+          인생에서 가장 큰 영광은 넘어지지 않는 것이 아니라, 넘어질 때마다 일어서는 것이다.
+        </p>
+      </div>
+    </div>
+    {/* 우측 액션 */}
+    <div style={{position:'absolute',right:10,top:100,zIndex:10,display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
+      {[
+        {d:<><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></>,label:'25'},
+        {d:<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>,label:'45'},
+        {d:<><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></>,label:'저장'},
+      ].map((a,i)=>(
+        <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2">{a.d}</svg>
+          <span style={{fontSize:6.5,color:'rgba(255,255,255,.65)',fontWeight:600}}>{a.label}</span>
+        </div>
+      ))}
+    </div>
+    {/* 유저 정보 */}
+    <div style={{position:'absolute',bottom:32,left:12,zIndex:10,display:'flex',alignItems:'center',gap:7}}>
+      <div style={{width:22,height:22,background:T.accent,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div>
+        <div style={{fontSize:8,fontWeight:700,color:'#fff'}}>독서왕</div>
+        <div style={{fontSize:6.5,color:'rgba(255,255,255,.5)'}}>5시간 전</div>
+      </div>
+    </div>
+    {/* 하단 탭바 */}
+    <div style={{position:'absolute',bottom:0,left:0,right:0,zIndex:20,background:'rgba(20,16,12,.97)',borderTop:'1px solid rgba(255,255,255,.07)',display:'flex',padding:'5px 0 3px'}}>
+      {[
+        {label:'홈',d:<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>},
+        {label:'오늘 한 줄',d:<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>,active:true},
+        {label:'모임',d:<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>},
+        {label:'내 서재',d:<><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></>},
+        {label:'마이프로필',d:<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>},
+      ].map((item,i)=>(
+        <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:1}}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={item.active?T.accent:'rgba(255,255,255,.35)'} strokeWidth="2">{item.d}</svg>
+          <span style={{fontSize:5,color:item.active?T.accent:'rgba(255,255,255,.35)',fontWeight:item.active?700:400,textAlign:'center',lineHeight:1.2,wordBreak:'keep-all'}}>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 /* ══════════════════ NAV ══════════════════ */
 const Nav = ({ dark }) => {
   const isMobile = useIsMobile();
@@ -530,7 +598,7 @@ const HowItWorks = () => {
   const isMobile = useIsMobile();
   const r = useReveal('rv', 0);
   const steps = [
-    {n:'01',title:'책을 검색하세요',desc:'읽은 책, 읽고 싶은 책을 검색하고 서재에 담아두세요. 1,800여 권의 도서가 등록되어 있습니다.'},
+    {n:'01',title:'책을 검색하세요',desc:'읽은 책, 읽고 싶은 책을 검색하고 서재에 담아두세요. 다양한 장르의 도서가 등록되어 있습니다.'},
     {n:'02',title:'서평을 남기세요',desc:'솔직한 한 문장도 좋습니다. 당신의 서평이 책의 온도를 만들어갑니다. 기록할수록 온도가 오릅니다.'},
     {n:'03',title:'온도가 올라갑니다',desc:'서평이 쌓일수록 책의 온도가 상승합니다. 내 서평이 모여 나만의 독서 온도도 함께 높아집니다.'},
   ];
@@ -728,7 +796,7 @@ const App = () => {
       <FeatureItem
         num="02"
         headline={"신간을 가장 먼저\n읽는 독자"}
-        desc="민음사, 문학동네, 창비 등 메이저 출판사와 함께합니다. 발매 전 책을 먼저 읽고 솔직한 서평을 남겨보세요. 서평단장을 위한 전문 관리 도구도 제공합니다."
+        desc="국내 메이저 출판사와 함께 합니다. 발매 전 책을 먼저 읽고 솔직한 서평을 남겨보세요. 서평단장을 위한 전문 관리 도구도 제공합니다."
         bullets={['메이저 출판사 신간 선독 기회 제공','서평단장 전용 신청자 관리 대시보드','주소 취합 및 엑셀 내보내기 자동화']}
         Screen={SReview}
         reversed={false}
@@ -751,6 +819,16 @@ const App = () => {
         Screen={SLibrary}
         reversed={false}
         gray={true}
+      />
+
+      <FeatureItem
+        num="05"
+        headline={"읽은 한 줄이\n모두의 영감이 됩니다"}
+        desc="인상 깊은 책의 한 구절과 사진 한 장으로 오늘의 독서를 공유하세요. 피드를 스크롤하다 보면 어느새 새로운 책 한 권이 읽고 싶어집니다."
+        bullets={['책 사진과 인상 깊은 구절을 피드로 공유','좋아요·댓글로 독자들과 소통','영감 받은 구절 저장 및 모아보기']}
+        Screen={SFeed}
+        reversed={false}
+        gray={false}
       />
 
       <HowItWorks />
