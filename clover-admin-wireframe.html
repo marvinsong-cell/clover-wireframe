@@ -1062,14 +1062,14 @@
 
               <!-- Manager Assignment -->
               <div class="section-title">담당매니저 배정</div>
-              <div class="manager-select" style="margin-bottom:0">
-                <div class="manager-chip selected">
+              <div class="manager-select" id="manager-chips" style="margin-bottom:0">
+                <div class="manager-chip selected" onclick="selectManager(this)">
                   <div class="manager-avatar">김</div> 김매니저
                 </div>
-                <div class="manager-chip">
+                <div class="manager-chip" onclick="selectManager(this)">
                   <div class="manager-avatar" style="background:#bfdbfe">이</div> 이매니저
                 </div>
-                <div class="manager-chip">
+                <div class="manager-chip" onclick="selectManager(this)">
                   <div class="manager-avatar" style="background:#fde68a">박</div> 박매니저
                 </div>
               </div>
@@ -1108,12 +1108,18 @@
                 </div>
                 <div class="form-row">
                   <span class="form-label">입금 상태</span>
-                  <select class="form-input" style="flex:0 0 auto;width:auto">
+                  <select class="form-input" id="payment-status-select" style="flex:0 0 auto;width:auto" onchange="togglePartialRefund()">
                     <option selected>입금완료</option>
                     <option>미입금</option>
                     <option>환불</option>
                     <option>부분환불</option>
                   </select>
+                </div>
+                <div class="form-row" id="partial-refund-row" style="display:none">
+                  <span class="form-label">환불 금액</span>
+                  <input class="form-input" type="number" placeholder="0" id="partial-refund-amount" style="max-width:120px" />
+                  <span style="font-size:13px;color:var(--gray-3)">원</span>
+                  <span style="font-size:12px;color:var(--gray-3);margin-left:4px">실납부: <strong id="partial-net">—</strong></span>
                 </div>
                 <div class="form-row" style="justify-content:flex-end">
                   <button class="btn btn-primary">저장</button>
@@ -1132,16 +1138,45 @@
               <div class="section-title">매칭 이력</div>
               <div class="match-history" style="margin-bottom:16px">
 
-                <!-- Approved match with appointment -->
+                <!-- Approved match - 약속 날짜 있음 (과거) -->
                 <div class="match-item">
                   <div class="match-dot approved"></div>
                   <div class="match-content">
-                    <div class="match-name">김철수 <span class="badge badge-green" style="font-size:10px">승인</span></div>
+                    <div class="match-name">김철수 <span class="badge badge-green" style="font-size:10px">승인</span> <span class="badge badge-gray" style="font-size:10px">만남완료</span></div>
                     <div class="match-status" style="color:var(--gray-3)">2026.05.01 · 매칭 승인</div>
-                    <div class="match-appt">📍 2026.05.15 강남 / 스타벅스 강남점 19:00</div>
+                    <div class="match-appt">📅 2026.05.03 19:00 · 강남 스타벅스 강남점</div>
+                    <div id="memo-toggle-1" style="margin-top:6px">
+                      <button class="btn btn-secondary btn-sm" onclick="toggleApptMemo('appt-memo-1', this)">메모 보기</button>
+                    </div>
+                    <div id="appt-memo-1" style="display:none;margin-top:8px">
+                      <div style="display:flex;gap:6px;margin-bottom:6px">
+                        <input type="date" value="2026-05-03" class="form-input" style="flex:1;padding:5px 8px;font-size:12px" />
+                        <input type="time" value="19:00" class="form-input" style="flex:1;padding:5px 8px;font-size:12px" />
+                      </div>
+                      <textarea class="memo-textarea" style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;min-height:56px">강남 스타벅스 강남점 · 첫 만남 잘 됐다고 함</textarea>
+                      <div class="memo-actions"><button class="btn btn-primary btn-sm">저장</button></div>
+                    </div>
                   </div>
-                  <div>
-                    <button class="btn btn-green btn-sm" onclick="openModal('appt-modal')">약속</button>
+                </div>
+
+                <!-- Approved match - 약속 날짜 있음 (미래) -->
+                <div class="match-item">
+                  <div class="match-dot approved"></div>
+                  <div class="match-content">
+                    <div class="match-name">오준혁 <span class="badge badge-green" style="font-size:10px">승인</span> <span class="badge badge-blue" style="font-size:10px">만남예정</span></div>
+                    <div class="match-status" style="color:var(--gray-3)">2026.05.06 · 매칭 승인</div>
+                    <div class="match-appt">📅 2026.05.20 18:30 · 홍대 카페</div>
+                    <div style="margin-top:6px">
+                      <button class="btn btn-secondary btn-sm" onclick="toggleApptMemo('appt-memo-2', this)">메모 보기</button>
+                    </div>
+                    <div id="appt-memo-2" style="display:none;margin-top:8px">
+                      <div style="display:flex;gap:6px;margin-bottom:6px">
+                        <input type="date" value="2026-05-20" class="form-input" style="flex:1;padding:5px 8px;font-size:12px" />
+                        <input type="time" value="18:30" class="form-input" style="flex:1;padding:5px 8px;font-size:12px" />
+                      </div>
+                      <textarea class="memo-textarea" style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;min-height:56px">홍대 카페 어딘가로 예약 중</textarea>
+                      <div class="memo-actions"><button class="btn btn-primary btn-sm">저장</button></div>
+                    </div>
                   </div>
                 </div>
 
@@ -1151,16 +1186,19 @@
                   <div class="match-content">
                     <div class="match-name">이민호 <span class="badge badge-red" style="font-size:10px">거절</span></div>
                     <div class="match-status" style="color:var(--gray-3)">2026.04.25 · 매칭 거절</div>
-                    <div class="match-reason">거절 사유: 나이 차이가 너무 많이남, 직업 미매칭</div>
+                    <div class="match-reason">거절 사유: 나이 차이, 직업 미매칭</div>
                   </div>
                 </div>
 
-                <!-- Pending match -->
+                <!-- Pending match - 약속 미정 -->
                 <div class="match-item">
                   <div class="match-dot pending"></div>
                   <div class="match-content">
                     <div class="match-name">박성준 <span class="badge badge-yellow" style="font-size:10px">검토중</span></div>
                     <div class="match-status" style="color:var(--gray-3)">2026.05.05 · 답변 대기중</div>
+                  </div>
+                  <div>
+                    <button class="btn btn-secondary btn-sm" onclick="openModal('reject-modal')">결과 입력</button>
                   </div>
                 </div>
 
@@ -1407,14 +1445,17 @@
           <option>김매니저</option>
           <option>이매니저</option>
         </select>
-        <select class="filter-select">
-          <option>약속 여부: 전체</option>
-          <option>약속 완료</option>
-          <option>약속 미정</option>
+        <select class="filter-select" id="meeting-filter" onchange="filterMeetingRows()">
+          <option value="all">만남 상태: 전체</option>
+          <option value="done">만남 완료</option>
+          <option value="upcoming">만남 예정</option>
+          <option value="none">미정</option>
         </select>
       </div>
 
-      <div class="table-wrapper">
+      <!-- 만남 완료 (약속 날짜 < 오늘) -->
+      <div class="section-title" style="margin-bottom:10px" data-meeting="done">✅ 만남 완료</div>
+      <div class="table-wrapper" style="margin-bottom:20px" data-meeting="done">
         <table>
           <thead>
             <tr>
@@ -1437,38 +1478,63 @@
               <td>—</td>
               <td>
                 <div style="font-size:12px">
-                  📍 강남 스타벅스<br/>
-                  <span style="color:var(--gray-3)">2026.05.15 19:00</span>
+                  📅 2026.05.03 19:00<br/>
+                  <span style="color:var(--gray-3)">강남 스타벅스 강남점</span>
                 </div>
               </td>
               <td>김매니저</td>
-              <td>
-                <button class="btn btn-green btn-sm" onclick="openModal('appt-modal')">약속 수정</button>
-              </td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('appt-simple-modal')">메모</button></td>
             </tr>
+            <tr>
+              <td>박준혁 (남·31)</td>
+              <td>이하은 (여·27)</td>
+              <td>2026.04.20</td>
+              <td><span class="badge badge-green">승인</span></td>
+              <td>—</td>
+              <td>
+                <div style="font-size:12px">
+                  📅 2026.04.28 18:00<br/>
+                  <span style="color:var(--gray-3)">잠실 카페</span>
+                </div>
+              </td>
+              <td>이매니저</td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('appt-simple-modal')">메모</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 만남 예정 (약속 날짜 >= 오늘) -->
+      <div class="section-title" style="margin-bottom:10px" data-meeting="upcoming">📅 만남 예정</div>
+      <div class="table-wrapper" style="margin-bottom:20px" data-meeting="upcoming">
+        <table>
+          <thead>
+            <tr>
+              <th>회원 A</th>
+              <th>회원 B</th>
+              <th>매칭일</th>
+              <th>결과</th>
+              <th>거절 사유</th>
+              <th>약속 일정</th>
+              <th>담당매니저</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
             <tr>
               <td>김지수 (여·28)</td>
-              <td>이민호 (남·34)</td>
-              <td>2026.04.25</td>
-              <td><span class="badge badge-red">거절</span></td>
-              <td><span style="font-size:12px;color:var(--gray-3)">나이차이, 직업 미매칭</span></td>
+              <td>오준혁 (남·29)</td>
+              <td>2026.05.06</td>
+              <td><span class="badge badge-green">승인</span></td>
               <td>—</td>
+              <td>
+                <div style="font-size:12px">
+                  📅 2026.05.20 18:30<br/>
+                  <span style="color:var(--gray-3)">홍대 카페</span>
+                </div>
+              </td>
               <td>김매니저</td>
-              <td>
-                <button class="btn btn-secondary btn-sm">상세</button>
-              </td>
-            </tr>
-            <tr>
-              <td>송아영 (여·30)</td>
-              <td>박성준 (남·31)</td>
-              <td>2026.05.03</td>
-              <td><span class="badge badge-yellow">검토중</span></td>
-              <td>—</td>
-              <td>—</td>
-              <td>이매니저</td>
-              <td>
-                <button class="btn btn-secondary btn-sm" onclick="openModal('reject-modal')">결과 입력</button>
-              </td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('appt-simple-modal')">메모</button></td>
             </tr>
             <tr>
               <td>최민준 (남·29)</td>
@@ -1478,14 +1544,63 @@
               <td>—</td>
               <td>
                 <div style="font-size:12px">
-                  📍 홍대 카페<br/>
-                  <span style="color:var(--gray-3)">2026.05.18 14:00</span>
+                  📅 2026.05.18 14:00<br/>
+                  <span style="color:var(--gray-3)">신촌 레스토랑</span>
                 </div>
               </td>
               <td>박매니저</td>
-              <td>
-                <button class="btn btn-green btn-sm" onclick="openModal('appt-modal')">약속 수정</button>
-              </td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('appt-simple-modal')">메모</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 미정 (검토중 or 약속 미설정) -->
+      <div class="section-title" style="margin-bottom:10px" data-meeting="none">⏳ 미정 (검토중 / 약속 미설정)</div>
+      <div class="table-wrapper" data-meeting="none">
+        <table>
+          <thead>
+            <tr>
+              <th>회원 A</th>
+              <th>회원 B</th>
+              <th>매칭일</th>
+              <th>결과</th>
+              <th>거절 사유</th>
+              <th>약속 일정</th>
+              <th>담당매니저</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>송아영 (여·30)</td>
+              <td>박성준 (남·31)</td>
+              <td>2026.05.03</td>
+              <td><span class="badge badge-yellow">검토중</span></td>
+              <td>—</td>
+              <td>—</td>
+              <td>이매니저</td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('reject-modal')">결과 입력</button></td>
+            </tr>
+            <tr>
+              <td>송아영 (여·30)</td>
+              <td>윤도현 (남·28)</td>
+              <td>2026.05.07</td>
+              <td><span class="badge badge-green">승인</span></td>
+              <td>—</td>
+              <td><span style="color:var(--gray-3);font-size:12px">약속 미설정</span></td>
+              <td>이매니저</td>
+              <td><button class="btn btn-secondary btn-sm" onclick="openModal('appt-simple-modal')">약속 입력</button></td>
+            </tr>
+            <tr>
+              <td>김지수 (여·28)</td>
+              <td>이민호 (남·34)</td>
+              <td>2026.04.25</td>
+              <td><span class="badge badge-red">거절</span></td>
+              <td><span style="font-size:12px;color:var(--gray-3)">나이차이, 직업 미매칭</span></td>
+              <td>—</td>
+              <td>김매니저</td>
+              <td><button class="btn btn-secondary btn-sm">상세</button></td>
             </tr>
           </tbody>
         </table>
@@ -1787,39 +1902,35 @@
   </div><!-- /content -->
 </div><!-- /main -->
 
-<!-- ── Modal: 약속 등록 ── -->
-<div id="appt-modal" class="modal-overlay" onclick="closeModalOut(event)">
+<!-- ── Modal: 약속 입력 (단순화) ── -->
+<div id="appt-simple-modal" class="modal-overlay" onclick="closeModalOut(event)">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">📅 약속 등록 / 수정</div>
-      <button class="modal-close" onclick="closeModal('appt-modal')">✕</button>
+      <div class="modal-title">📅 약속 입력</div>
+      <button class="modal-close" onclick="closeModal('appt-simple-modal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="notice-box">
-        약속 정보를 저장하면 <strong>김지수</strong>님과 <strong>김철수</strong>님 두 분의 기록에 모두 저장됩니다.
-      </div>
-      <div class="form-group">
-        <label>장소</label>
-        <input type="text" placeholder="예) 강남 스타벅스 강남점" value="강남 스타벅스 강남점" />
+        저장하면 두 회원 모두의 이력에 동시 반영됩니다.
       </div>
       <div class="form-row-2">
         <div class="form-group">
           <label>날짜</label>
-          <input type="date" value="2026-05-15" />
+          <input type="date" value="2026-05-20" />
         </div>
         <div class="form-group">
           <label>시간</label>
-          <input type="time" value="19:00" />
+          <input type="time" value="18:00" />
         </div>
       </div>
       <div class="form-group">
-        <label>메모 (선택)</label>
-        <textarea placeholder="약속 관련 메모…"></textarea>
+        <label>메모 (장소, 특이사항 등 자유 입력)</label>
+        <textarea placeholder="예) 강남 스타벅스 2층 / 첫 만남 잘 됐다고 함…" style="min-height:90px"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('appt-modal')">취소</button>
-      <button class="btn btn-primary" onclick="closeModal('appt-modal')">저장</button>
+      <button class="btn btn-secondary" onclick="closeModal('appt-simple-modal')">취소</button>
+      <button class="btn btn-primary" onclick="closeModal('appt-simple-modal')">저장</button>
     </div>
   </div>
 </div>
@@ -1883,7 +1994,6 @@
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
     document.getElementById('topbar-title').textContent = pages[name] || name;
-
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.classList.remove('active');
       if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + name + "'")) {
@@ -1892,6 +2002,43 @@
     });
   }
 
+  /* ── 매니저 칩 선택 ── */
+  function selectManager(el) {
+    el.closest('#manager-chips').querySelectorAll('.manager-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  /* ── 부분환불 금액 입력 ── */
+  function togglePartialRefund() {
+    const sel = document.getElementById('payment-status-select');
+    const row = document.getElementById('partial-refund-row');
+    row.style.display = sel.value === '부분환불' ? 'flex' : 'none';
+  }
+  document.addEventListener('input', function(e) {
+    if (e.target.id === 'partial-refund-amount') {
+      const paid = parseInt(document.querySelector('.form-input[type="text"]').value.replace(/,/g,'')) || 0;
+      const refund = parseInt(e.target.value) || 0;
+      document.getElementById('partial-net').textContent = (paid - refund).toLocaleString() + '원';
+    }
+  });
+
+  /* ── 약속 메모 토글 ── */
+  function toggleApptMemo(id, btn) {
+    const el = document.getElementById(id);
+    const hidden = el.style.display === 'none';
+    el.style.display = hidden ? 'block' : 'none';
+    btn.textContent = hidden ? '메모 닫기' : '메모 보기';
+  }
+
+  /* ── 매칭 관리 — 만남 상태 필터 ── */
+  function filterMeetingRows() {
+    const val = document.getElementById('meeting-filter').value;
+    document.querySelectorAll('[data-meeting]').forEach(el => {
+      el.style.display = (val === 'all' || el.dataset.meeting === val) ? '' : 'none';
+    });
+  }
+
+  /* ── 모달 ── */
   function openModal(id) {
     document.getElementById(id).classList.add('open');
   }
