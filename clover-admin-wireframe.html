@@ -783,10 +783,6 @@
 
   <div class="sidebar-section">
     <div class="sidebar-section-label">운영</div>
-    <div class="sidebar-item" onclick="switchPage('managers')">
-      <span class="icon">🧑‍💼</span> 매니저 관리
-      <span class="new-badge">NEW</span>
-    </div>
     <div class="sidebar-item">
       <span class="icon">⚙️</span> 설정
     </div>
@@ -1666,78 +1662,6 @@
     </div>
 
     <!-- ── PAGE: Manager ── -->
-    <div id="page-managers" class="page">
-      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat-card">
-          <div class="stat-label">총 매니저</div>
-          <div class="stat-value">3명</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">담당 회원 (평균)</div>
-          <div class="stat-value">14명</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">총 입금 관리액</div>
-          <div class="stat-value green">897,000원</div>
-        </div>
-      </div>
-
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>매니저</th>
-              <th>이메일</th>
-              <th>담당 회원 수</th>
-              <th>입금 관리액</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div class="avatar-sm">김</div> 김세연
-                </div>
-              </td>
-              <td>seyon@clover.app</td>
-              <td>16명</td>
-              <td>336,000원</td>
-              <td>
-                <button class="btn btn-secondary btn-sm">담당 회원보기</button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div class="avatar-sm" style="background:#bfdbfe">이</div> 이영현
-                </div>
-              </td>
-              <td>younghyun@clover.app</td>
-              <td>14명</td>
-              <td>312,000원</td>
-              <td>
-                <button class="btn btn-secondary btn-sm">담당 회원보기</button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div class="avatar-sm" style="background:#fde68a">송</div> 송규용
-                </div>
-              </td>
-              <td>kyuyong@clover.app</td>
-              <td>12명</td>
-              <td>249,000원</td>
-              <td>
-                <button class="btn btn-secondary btn-sm">담당 회원보기</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- ── PAGE: Dashboard ── -->
     <div id="page-dashboard" class="page">
       <div class="stats-row">
@@ -1839,7 +1763,7 @@
     detail: '회원 상세',
     profiles: '프로필 카드뷰',
     revenue: '입금 · 수익 현황',
-    managers: '매니저 관리',
+
     dashboard: '대시보드'
   };
 
